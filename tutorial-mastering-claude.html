@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial: Mastering Claude AI – Fasa 1 hingga 5</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #faf7f2;
+    --ink: #1a1410;
+    --ink2: #3d3228;
+    --muted: #8a7a6a;
+    --border: #d4c9b8;
+    --accent-teal: #0d7a6a;
+    --accent-amber: #c25c00;
+    --accent-blue: #1a4fa0;
+    --accent-red: #a01a1a;
+    --accent-green: #2a7a3a;
+    --step-inactive: #e8e0d4;
+    --step-active: #1a1410;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ===== TOP NAV ===== */
+  .top-nav {
+    background: var(--ink);
+    color: #f5f0e8;
+    padding: 0.85rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--accent-amber);
+  }
+  .nav-brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: #f5c078;
+  }
+  .progress-bar-wrap {
+    flex: 1;
+    max-width: 300px;
+    margin: 0 2rem;
+  }
+  .progress-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: #a89878;
+    margin-bottom: 0.3rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-track {
+    height: 4px;
+    background: #3a3028;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent-amber);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .nav-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #a89878;
+  }
+
+  /* ===== PHASE TABS ===== */
+  .phase-tabs {
+    display: flex;
+    background: var(--ink2);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .phase-tabs::-webkit-scrollbar { display: none; }
+  .phase-tab {
+    flex-shrink: 0;
+    padding: 0.7rem 1.2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: #8a7a6a;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .phase-tab:hover { color: #f5f0e8; }
+  .phase-tab.active {
+    color: #f5c078;
+    border-bottom-color: #f5c078;
+    background: rgba(245,192,120,0.08);
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 90px);
+  }
+  @media (max-width: 768px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    position: sticky;
+    top: 90px;
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+  }
+  .sidebar-section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    padding: 0 1.25rem 0.5rem;
+    text-transform: uppercase;
+  }
+  .sidebar-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-step:hover { background: #ede8de; }
+  .sidebar-step.active {
+    background: #e8e0d0;
+    border-left-color: var(--accent-amber);
+  }
+  .sidebar-step.done .step-dot { background: var(--accent-green); }
+  .step-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--step-inactive);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .sidebar-step.active .step-dot {
+    background: var(--ink);
+    color: #f5c078;
+  }
+  .sidebar-step.done .step-dot { color: #fff; }
+  .step-label {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--ink2);
+    line-height: 1.3;
+  }
+  .sidebar-step.active .step-label { font-weight: 600; color: var(--ink); }
+
+  .sidebar-phase-header {
+    padding: 1.25rem 1.25rem 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+  .sidebar-phase-header:first-child { border-top: none; margin-top: 0; }
+
+  /* ===== CONTENT ===== */
+  .content-area {
+    padding: 2rem 2.5rem 4rem;
+    max-width: 780px;
+  }
+
+  .phase-panel { display: none; }
+  .phase-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== PHASE HEADER ===== */
+  .phase-hero {
+    border-left: 5px solid var(--accent-amber);
+    padding: 1.5rem 1.75rem;
+    background: var(--surface);
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .phase-hero::after {
+    content: attr(data-phase-num);
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 4rem;
+    font-weight: 600;
+    color: rgba(0,0,0,0.04);
+    line-height: 1;
+  }
+  .phase-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--accent-amber);
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .phase-hero h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .phase-hero .subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .phase-hero .subtitle span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* ===== STEP CARDS ===== */
+  .step-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .step-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+  .step-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .step-card.open .step-card-header {
+    border-bottom-color: var(--border);
+    background: #f0ece4;
+  }
+
+  .step-num-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: #f5c078;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-card-title-block { flex: 1; }
+  .step-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .step-card-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+  .step-chevron {
+    font-size: 0.8rem;
+    color: var(--muted);
+    transition: transform 0.25s;
+  }
+  .step-card.open .step-chevron { transform: rotate(180deg); }
+
+  .step-body {
+    display: none;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+  .step-card.open .step-body { display: block; animation: fadeIn 0.2s ease; }
+
+  /* ===== CONTENT BLOCKS ===== */
+  .obj-strip {
+    background: #e8f4f0;
+    border-left: 3px solid var(--accent-teal);
+    padding: 0.6rem 1rem;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.83rem;
+    color: var(--accent-teal);
+    margin-bottom: 1.25rem;
+  }
+  .obj-strip strong { font-weight: 700; }
+
+  .instruction-list {
+    list-style: none;
+    counter-reset: inst;
+  }
+  .instruction-list li {
+    counter-increment: inst;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: var(--ink2);
+  }
+  .instruction-list li:last-child { border-bottom: none; }
+  .inst-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--ink);
+    color: #f5c078;
+    border-radius: 50%;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.1rem;
+  }
+
+  /* Boxes */
+  .box {
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .box-analogy {
+    background: #fef3e2;
+    border: 1px solid #f5c078;
+    color: #6b4200;
+  }
+  .box-analogy .box-label { color: var(--accent-amber); font-weight: 700; }
+
+  .box-example {
+    background: #e8edf8;
+    border: 1px solid #a8b8d8;
+    color: #1a3060;
+  }
+  .box-example .box-label { color: var(--accent-blue); font-weight: 700; }
+
+  .box-trainer {
+    background: #fff8e8;
+    border: 1px dashed var(--accent-amber);
+    color: #5a3a00;
+  }
+  .box-trainer .box-label { color: var(--accent-amber); font-weight: 700; }
+
+  .box-warning {
+    background: #fde8e8;
+    border: 1px solid #e8a8a8;
+    color: #6a1a1a;
+  }
+  .box-warning .box-label { color: var(--accent-red); font-weight: 700; }
+
+  .box-tip {
+    background: #e8f4ec;
+    border: 1px solid #a8d4b4;
+    color: #1a4a28;
+  }
+  .box-tip .box-label { color: var(--accent-green); font-weight: 700; }
+
+  .box-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--ink);
+    color: #f5c078;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+  .code-block .comment { color: #6a5a4a; }
+  .code-block .string { color: #aed8a8; }
+  .code-block .keyword { color: #78b8d8; }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 1rem 0;
+  }
+  .data-table th {
+    background: var(--ink);
+    color: #f5c078;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 0.6rem 0.85rem;
+    text-align: left;
+  }
+  .data-table td {
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.45;
+    color: var(--ink2);
+  }
+  .data-table tr:hover td { background: #ede8de; }
+
+  /* Q&A check */
+  .qa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  @media (max-width: 600px) { .qa-grid { grid-template-columns: 1fr; } }
+
+  .qa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .qa-card:hover { border-color: var(--accent-amber); box-shadow: 0 2px 10px rgba(194,92,0,0.12); }
+  .qa-card.revealed { background: #e8f4ec; border-color: var(--accent-green); }
+  .q-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent-amber);
+    margin-bottom: 0.3rem;
+  }
+  .q-text { font-size: 0.83rem; color: var(--ink); font-weight: 600; line-height: 1.4; }
+  .q-answer {
+    display: none;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #a8d4b4;
+    font-size: 0.8rem;
+    color: #1a4a28;
+    line-height: 1.5;
+  }
+  .qa-card.revealed .q-answer { display: block; }
+  .q-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  /* Homework block */
+  .homework-block {
+    background: var(--ink);
+    color: #f5f0e8;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .homework-block h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f5c078;
+    margin-bottom: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .hw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #3a3028;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .hw-item:last-child { border-bottom: none; }
+  .hw-check {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f5c078;
+    border-radius: 4px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-top: 2px;
+  }
+  .hw-check.checked { background: #f5c078; }
+  .hw-check.checked::after { content: "✓"; color: var(--ink); font-size: 0.7rem; font-weight: 700; }
+
+  /* Folder tree */
+  .folder-tree {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--ink);
+    color: #aed8a8;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin: 0.75rem 0;
+    line-height: 2;
+  }
+  .folder-tree .folder { color: #f5c078; }
+  .folder-tree .file { color: #78d8c8; }
+  .folder-tree .readonly { color: #8a6a5a; font-style: italic; }
+  .folder-tree .writable { color: #aed8a8; font-weight: 600; }
+
+  /* Navigation buttons */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .btn-prev {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink2);
+  }
+  .btn-prev:hover { background: #ede8de; }
+  .btn-next {
+    background: var(--ink);
+    color: #f5c078;
+  }
+  .btn-next:hover { background: var(--ink2); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Phase complete banner */
+  .phase-complete {
+    background: #e8f4ec;
+    border: 2px solid var(--accent-green);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+  .phase-complete h3 { color: var(--accent-green); font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .phase-complete p { font-size: 0.85rem; color: var(--ink2); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    padding: 2rem;
+    letter-spacing: 0.15em;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="nav-brand">MASTERING CLAUDE AI</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      <span>KEMAJUAN</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+  <div class="nav-time" id="timerDisplay">⏱ 00:00</div>
+</nav>
+
+<!-- PHASE TABS -->
+<div class="phase-tabs">
+  <div class="phase-tab active" onclick="switchPhase(0)">FASA 1 · HOOK</div>
+  <div class="phase-tab" onclick="switchPhase(1)">FASA 2 · SETUP & MODES</div>
+  <div class="phase-tab" onclick="switchPhase(2)">FASA 3 · DEEP DIVE</div>
+  <div class="phase-tab" onclick="switchPhase(3)">FASA 4 · CHECK</div>
+  <div class="phase-tab" onclick="switchPhase(4)">FASA 5 · WRAP UP</div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- CONTENT -->
+  <main class="content-area">
+
+    <!-- ============ FASA 1 ============ -->
+    <div class="phase-panel active" id="phase-0">
+      <div class="phase-hero" data-phase-num="1">
+        <span class="phase-tag">FASA 1 · MINIT 0–5</span>
+        <h1>🔥 Hook & Set the Stage</h1>
+        <div class="subtitle">
+          <span>⏱ 5 minit</span>
+          <span>🎯 Kaedah: Soalan terbuka + Cerita pendek</span>
+          <span>👥 Semua peserta</span>
+        </div>
+      </div>
+
+      <!-- STEP 1.1 -->
+      <div class="step-card open" id="step-1-1">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">1.1</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Soalan Pembuka — Activate Prior Knowledge</div>
+            <div class="step-card-meta">Masa: 1 minit · Teknik: Show of hands</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Ukur tahap pengetahuan sedia ada peserta dan bina rasa ingin tahu.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Berdiri di hadapan peserta. Jangan buka slide dulu.</li>
+            <li><span class="inst-num">2</span>Tanya dengan nada santai: <em>"Angkat tangan — berapa ramai yang dah pernah guna Claude?"</em></li>
+            <li><span class="inst-num">3</span>Perhatikan berapa banyak tangan. Kemudian tanya: <em>"Berapa ramai yang rasa Claude sama sahaja macam ChatGPT?"</em></li>
+            <li><span class="inst-num">4</span>Senyum dan sebut: <em>"Ok, by the end of 30 minit ni, jawapan anda akan berubah."</em></li>
+          </ul>
+          <div class="box box-trainer">
+            <span class="box-label">📌 NOTA TRAINER</span>
+            Jangan nilai jawapan peserta. Tujuan soalan ini bukan untuk menguji — tapi untuk membuka mental frame. Setiap tangan yang turun = peluang untuk buat WOW moment nanti.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1.2 -->
+      <div class="step-card" id="step-1-2">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">1.2</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Cerita Pendek — The 5-Line Story Method</div>
+            <div class="step-card-meta">Masa: 2 minit · Teknik: Personal story + contrast</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Bina empati dan buktikan Claude bukan sekadar chatbot biasa melalui pengalaman peribadi.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span><strong>Baris 1 – Situasi Lama:</strong> "Dulu saya ambil 2 jam untuk siapkan satu laporan mingguan. Format berbeza-beza, ayat macam robot, bos saya tanya 'ini ke tulis sendiri?'"</li>
+            <li><span class="inst-num">2</span><strong>Baris 2 – Masalah:</strong> "Saya cuba ChatGPT. Output ok, tapi setiap kali kena explain semula siapa saya, apa syarikat saya, apa nada penulisan saya."</li>
+            <li><span class="inst-num">3</span><strong>Baris 3 – Perubahan:</strong> "Kemudian saya belajar cara betul guna Claude — bukan sekadar taip soalan, tapi setup sistem."</li>
+            <li><span class="inst-num">4</span><strong>Baris 4 – Keputusan:</strong> "Sekarang laporan yang sama siap dalam 8 minit. Claude dah tahu siapa saya, tahu cara saya tulis, tahu mana nak simpan output."</li>
+            <li><span class="inst-num">5</span><strong>Baris 5 – Jemputan:</strong> "Hari ini saya nak ajar sistem yang sama kepada anda."</li>
+          </ul>
+          <div class="box box-analogy">
+            <span class="box-label">🧠 ANALOGI PEMBUKA</span>
+            "Claude bukan sekadar mesin taip. Dia adalah pembantu pejabat peribadi anda. Tapi kalau anda tak bagi dia meja, fail, dan arahan kerja yang jelas — dia akan buat kerja macam pekerja baru yang masuk hari pertama tanpa orientation."
+          </div>
+          <div class="box box-trainer">
+            <span class="box-label">📌 NOTA TRAINER</span>
+            Ubah cerita ini mengikut pengalaman sebenar anda. Lebih peribadi = lebih kuat impaknya. Gunakan nama projek atau situasi yang peserta boleh relate.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1.3 -->
+      <div class="step-card" id="step-1-3">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">1.3</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Peta Pembelajaran — Tunjukkan Journey 10 Langkah</div>
+            <div class="step-card-meta">Masa: 2 minit · Teknik: Visual roadmap</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Beri peserta gambaran besar supaya mereka tahu ke mana hala tuju sesi ini.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Buka slide / tunjukkan visual 10-langkah sistem Claude.</li>
+            <li><span class="inst-num">2</span>Sebut: <em>"Ada 10 langkah dalam sistem ni. Hari ini kita akan fokus Langkah 1 hingga 6 — ini adalah tulang belakang kepada semua yang lain."</em></li>
+            <li><span class="inst-num">3</span>Highlight bahagian yang akan dicakup hari ini: Setup → Modes → Folder → Core Files → Shortcut → AskUserQuest.</li>
+            <li><span class="inst-num">4</span>Sebut dengan yakin: <em>"Kalau anda buat 4 langkah pertama dengan betul, 80% kerja anda dengan Claude akan jadi lebih mudah."</em></li>
+          </ul>
+          <div class="box box-tip">
+            <span class="box-label">✅ TIPS FASA 1</span>
+            Jangan tergesa-gesa. Fasa Hook yang kuat = peserta duduk tegak, fokus, dan bersedia belajar. Ini pelaburan 5 minit yang pulang berganda.
+          </div>
+          <div class="phase-complete">
+            <h3>✅ Fasa 1 Selesai</h3>
+            <p>Peserta kini ada konteks, motivasi, dan peta. Teruskan ke Fasa 2.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" disabled>← Sebelum</button>
+        <button class="btn btn-next" onclick="switchPhase(1)">Fasa 2: Setup & Modes →</button>
+      </div>
+    </div>
+
+    <!-- ============ FASA 2 ============ -->
+    <div class="phase-panel" id="phase-1">
+      <div class="phase-hero" data-phase-num="2">
+        <span class="phase-tag">FASA 2 · MINIT 5–15</span>
+        <h1>📦 Setup, Modes & Sistem Folder</h1>
+        <div class="subtitle">
+          <span>⏱ 10 minit</span>
+          <span>🎯 Demo langsung + Q&A ringkas</span>
+          <span>🎓 Langkah 1–4</span>
+        </div>
+      </div>
+
+      <!-- STEP 2.1 -->
+      <div class="step-card open" id="step-2-1">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">2.1</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 1 — Download Desktop App</div>
+            <div class="step-card-meta">Masa: 2 minit · Teknik: Live demo</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta faham kenapa desktop app WAJIB dan bukan pilihan.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Buka browser, pergi ke <strong>claude.com/download</strong> dan tunjukkan halaman download.</li>
+            <li><span class="inst-num">2</span>Tekan: <em>"Ada 3 cara akses Claude — website, mobile app, dan desktop app. Tapi hanya desktop app yang ada feature Cowork penuh."</em></li>
+            <li><span class="inst-num">3</span>Download untuk Mac atau Windows (ikut OS peserta).</li>
+            <li><span class="inst-num">4</span>Ingatkan: <em>"Ini perlukan akaun Pro — USD$20 sebulan. Tapi ROI dia? Satu laporan yang jimat 2 jam = bayar balik dalam sehari."</em></li>
+          </ul>
+          <div class="box box-analogy">
+            <span class="box-label">🧠 ANALOGI</span>
+            "Guna Claude di website macam guna WhatsApp Web — ada, boleh pakai, tapi ada feature yang takde. Kalau nak penuh, kena guna app sebenar."
+          </div>
+          <div class="box box-warning">
+            <span class="box-label">⚠️ JANGAN SKIP</span>
+            Jangan guna website atau mobile app untuk sesi training ini. Feature Cowork yang akan kita tunjukkan nanti HANYA ada dalam desktop app.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2.2 -->
+      <div class="step-card" id="step-2-2">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">2.2</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 2 — Kenali 4 Mod Claude</div>
+            <div class="step-card-meta">Masa: 3 minit · Teknik: Jadual + soal jawab 30 saat</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta boleh pilih mod yang betul untuk setiap jenis kerja.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Tunjukkan jadual 4 mod. Bagi peserta 30 saat baca.</li>
+            <li><span class="inst-num">2</span>Tanya: <em>"Mod mana yang paling relevan untuk kerja harian anda?"</em> — minta 2-3 peserta jawab.</li>
+            <li><span class="inst-num">3</span>Tekankan: <em>"Kebanyakan orang hanya guna Chat. Itu macam beli kereta sport tapi guna gear 1 je."</em></li>
+          </ul>
+          <table class="data-table">
+            <tr><th>MOD</th><th>GUNA UNTUK</th><th>CONTOH KERJA SEBENAR</th><th>SIAPA?</th></tr>
+            <tr><td>💬 Chat</td><td>Soalan cepat, satu kali guna</td><td>"Terjemah ayat ni ke BM formal"</td><td>Semua</td></tr>
+            <tr><td>📁 Projects</td><td>Kerja berulang, kerja team</td><td>Newsletter mingguan, brief mesyuarat</td><td>Team leader</td></tr>
+            <tr><td>🖥 Cowork</td><td>Kerja solo mendalam + fail</td><td>Tulis laporan 30 muka dari nota</td><td>Pro user</td></tr>
+            <tr><td>⌨️ Code</td><td>Pembangunanan teknikal sahaja</td><td>Debug script Python</td><td>Developer</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- STEP 2.3 -->
+      <div class="step-card" id="step-2-3">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">2.3</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 3 — Bina Sistem 4-Folder</div>
+            <div class="step-card-meta">Masa: 2 minit · Teknik: Visual folder tree</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta tahu cara organise fail supaya Claude boleh bekerja secara sistematik.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Buka File Explorer / Finder. Buat folder baru bernama <strong>Claude-Cowork</strong>.</li>
+            <li><span class="inst-num">2</span>Dalam folder itu, buat 4 sub-folder seperti di bawah.</li>
+            <li><span class="inst-num">3</span>Tekankan Golden Rule: <em>"Claude hanya boleh TULIS ke dalam CLAUDE OUTPUTS. Folder lain? Baca sahaja."</em></li>
+          </ul>
+          <div class="folder-tree">
+📁 <span class="folder">Claude-Cowork/</span><br>
+├── 📁 <span class="folder">ABOUT ME</span>         <span class="readonly">← baca sahaja (Claude tak boleh ubah)</span><br>
+├── 📁 <span class="folder">PROJECTS</span>          <span class="readonly">← baca sahaja (Claude tak boleh ubah)</span><br>
+├── 📁 <span class="folder">TEMPLATES</span>         <span class="readonly">← baca sahaja (Claude tak boleh ubah)</span><br>
+└── 📁 <span class="folder">CLAUDE OUTPUTS</span>    <span class="writable">← Claude BOLEH tulis di sini ✓</span>
+          </div>
+          <div class="box box-analogy">
+            <span class="box-label">🧠 ANALOGI FOLDER</span>
+            "Bayangkan anda ada pembantu baru. Anda tak bagi dia akses ke semua laci pejabat. Dia hanya boleh letak kerja siap dalam 'TRAY KELUAR'. Folder lain? Dia baca untuk rujukan, tapi tak boleh ubah atau delete. Ini elak Claude overwrite fail penting anda secara tidak sengaja."
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2.4 -->
+      <div class="step-card" id="step-2-4">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">2.4</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 4 — Tulis 2 Core Files</div>
+            <div class="step-card-meta">Masa: 3 minit · Teknik: Live contoh + template</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta faham bahawa 2 fail ini lebih berkuasa dari 50 prompt rawak.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Dalam folder <strong>ABOUT ME</strong>, buat fail baru: <code>about-me.md</code></li>
+            <li><span class="inst-num">2</span>Isi dengan maklumat diri seperti contoh di bawah.</li>
+            <li><span class="inst-num">3</span>Buat fail kedua: <code>anti-ai-style.md</code> — senarai perkataan/frasa yang DILARANG.</li>
+            <li><span class="inst-num">4</span>Tekankan: <em>"Dua fail ini adalah DNA anda dalam Claude. Setiap output yang Claude hasilkan akan mencerminkan fail-fail ini."</em></li>
+          </ul>
+          <div class="code-block">
+<span class="comment"># about-me.md</span><br><br>
+<span class="keyword">Nama:</span> <span class="string">Ahmad Sulaiman</span><br>
+<span class="keyword">Jawatan:</span> <span class="string">Pegawai Tadbir, Universiti XYZ</span><br>
+<span class="keyword">Tanggungjawab:</span> <span class="string">Pengurusan rekod, komunikasi rasmi, laporan bulanan</span><br>
+<span class="keyword">Nada penulisan:</span> <span class="string">Formal BM, profesional, padat, tidak bertele-tele</span><br>
+<span class="keyword">Output pilihan:</span> <span class="string">Simpan ke folder CLAUDE OUTPUTS sebagai .docx atau .pdf</span><br>
+<span class="keyword">Keutamaan semasa:</span> <span class="string">Menyiapkan laporan tahunan Q4</span>
+          </div>
+          <div class="code-block">
+<span class="comment"># anti-ai-style.md</span><br><br>
+<span class="keyword">JANGAN guna perkataan ini:</span><br>
+<span class="string">- "delve into"</span><br>
+<span class="string">- "it's worth noting"</span><br>
+<span class="string">- "synergize"</span><br>
+<span class="string">- "leverage"</span><br>
+<span class="string">- "game-changer"</span><br>
+<span class="string">- "comprehensive"</span><br><br>
+<span class="keyword">SENTIASA:</span><br>
+<span class="string">- Bahasa Melayu formal standard</span><br>
+<span class="string">- Ayat pendek, maksimum 2 baris satu perenggan</span><br>
+<span class="string">- Guna nama penuh dalam surat, bukan singkatan</span>
+          </div>
+          <div class="phase-complete">
+            <h3>✅ Fasa 2 Selesai</h3>
+            <p>Sistem asas siap. Peserta kini ada app betul, folder system, dan 2 core files. Teruskan ke Fasa 3.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="switchPhase(0)">← Fasa 1</button>
+        <button class="btn btn-next" onclick="switchPhase(2)">Fasa 3: Deep Dive →</button>
+      </div>
+    </div>
+
+    <!-- ============ FASA 3 ============ -->
+    <div class="phase-panel" id="phase-2">
+      <div class="phase-hero" data-phase-num="3">
+        <span class="phase-tag">FASA 3 · MINIT 15–23</span>
+        <h1>🚀 Advanced Prompting & Automasi</h1>
+        <div class="subtitle">
+          <span>⏱ 8 minit</span>
+          <span>🎯 Demo interaktif + scenario-based</span>
+          <span>🎓 Langkah 5–8</span>
+        </div>
+      </div>
+
+      <!-- STEP 3.1 -->
+      <div class="step-card open" id="step-3-1">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">3.1</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 5 — Text Shortcut: Henti Taip Berulang</div>
+            <div class="step-card-meta">Masa: 2 minit · Teknik: Live setup demo</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta boleh setup shortcut supaya Claude auto-baca about-me.md tanpa perlu taip manual setiap kali.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span><strong>Mac:</strong> Pergi System Settings → Keyboard → Text Replacements. Tambah shortcut baru.</li>
+            <li><span class="inst-num">2</span><strong>Windows:</strong> Guna AutoHotkey atau built-in Text Replacement (Settings → Devices → Typing).</li>
+            <li><span class="inst-num">3</span>Set: Taip <code>/prompt</code> → expand kepada arahan lengkap yang suruh Claude baca about-me.md dan output ke CLAUDE OUTPUTS.</li>
+            <li><span class="inst-num">4</span>Demo langsung: Taip <code>/prompt</code> dalam Claude → tengok ia auto-expand → Claude terus tahu context anda.</li>
+          </ul>
+          <div class="code-block">
+<span class="comment">## Contoh isi shortcut /prompt</span><br><br>
+<span class="string">Baca fail about-me.md dalam folder ABOUT ME saya.</span><br>
+<span class="string">Gunakan maklumat tersebut sebagai konteks untuk semua output.</span><br>
+<span class="string">Simpan semua hasil kerja ke folder CLAUDE OUTPUTS.</span><br>
+<span class="string">Ikut gaya penulisan dalam anti-ai-style.md.</span><br>
+<span class="string">Sedia untuk menerima arahan seterusnya.</span>
+          </div>
+          <div class="box box-analogy">
+            <span class="box-label">🧠 ANALOGI SHORTCUT</span>
+            "Macam anda ada cop rasmi pejabat. Sekali tekan — nama, jawatan, unit, arahan format, semua keluar secara automatik. Tak perlu tulis panjang-panjang setiap kali mula sesi baru."
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3.2 -->
+      <div class="step-card" id="step-3-2">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">3.2</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 6 — AskUserQuest: Biar Claude Tanya Anda</div>
+            <div class="step-card-meta">Masa: 3 minit · Teknik: Scenario roleplay</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta boleh gunakan teknik AskUserQuest untuk biarkan Claude pimpin proses kerja dengan soalan pilihan.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Beritahu Claude: <em>"Saya nak buat kempen pemasaran. Tanya saya soalan berbentuk pilihan sebelum mulakan."</em></li>
+            <li><span class="inst-num">2</span>Claude akan hasilkan senarai soalan dengan pilihan A/B/C. Anda klik/taip jawapan.</li>
+            <li><span class="inst-num">3</span>Claude proses semua jawapan → hasilkan plan lengkap → anda semak dan approve.</li>
+            <li><span class="inst-num">4</span>Demo scenario di bawah kepada peserta.</li>
+          </ul>
+          <div class="box box-example">
+            <span class="box-label">✏️ SCENARIO CONTOH — KEMPEN PEMASARAN</span>
+            <strong>Anda:</strong> "Tolong bantu buat kempen marketing produk baru."<br><br>
+            <strong>Claude tanya:</strong><br>
+            → "Siapa target anda? A) Pelajar B) Profesional C) Warga Emas"<br>
+            → "Platform utama? A) Instagram B) TikTok C) Email"<br>
+            → "Bajet? A) Rendah (&lt;RM500) B) Sederhana (RM500-2k) C) Tiada had"<br><br>
+            <strong>Anda klik:</strong> B, A, A<br>
+            <strong>Claude output:</strong> Plan kempen lengkap, siap untuk review → anda approve → Claude execute.
+          </div>
+          <div class="box box-trainer">
+            <span class="box-label">📌 NOTA TRAINER — WOW MOMENT</span>
+            Ini adalah momen yang peserta akan teruja. Kalau ada masa, jemput 1 peserta cuba live di skrin. Biar mereka rasa sendiri kuasa teknik ini. Reaksi mereka akan "jual" konsep ini kepada peserta lain.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3.3 -->
+      <div class="step-card" id="step-3-3">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">3.3</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Langkah 7 & 8 — Plugins & Connectors</div>
+            <div class="step-card-meta">Masa: 3 minit · Teknik: Overview + demo ringkas</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta tahu cara sambungkan Claude kepada alat kerja sedia ada mereka.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span><strong>Plugins (Langkah 7):</strong> Pergi ke sidebar Claude → klik ikon + → Install plugin (contoh: Marketing, Data Analysis, Productivity).</li>
+            <li><span class="inst-num">2</span><strong>Connectors (Langkah 8):</strong> Pergi Settings → Connectors → Sambungkan Slack, Google Drive, atau Notion menggunakan OAuth.</li>
+            <li><span class="inst-num">3</span>Demo: Tunjukkan Claude boleh cari maklumat dari Slack dan cross-reference dengan Google Doc dalam satu arahan.</li>
+          </ul>
+          <div class="box box-example">
+            <span class="box-label">✏️ CONTOH CONNECTOR — SLACK + GOOGLE DOCS</span>
+            <strong>Arahan kepada Claude:</strong><br>
+            "Ringkaskan semua update projek dari channel #projek-q4 dalam Slack minggu ini, kemudian bandingkan dengan brief dalam Google Doc 'Projek Q4 Brief'."<br><br>
+            <strong>Output Claude:</strong><br>
+            → Ringkasan 5 poin update terkini<br>
+            → 3 gap antara update dan brief asal<br>
+            → Cadangan tindakan seterusnya<br>
+            → Disimpan ke CLAUDE OUTPUTS/ringkasan-q4.docx
+          </div>
+          <div class="phase-complete">
+            <h3>✅ Fasa 3 Selesai</h3>
+            <p>Peserta kini boleh automate prompting dan sambungkan Claude ke ekosistem kerja mereka. Teruskan ke semakan faham.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="switchPhase(1)">← Fasa 2</button>
+        <button class="btn btn-next" onclick="switchPhase(3)">Fasa 4: Comprehension Check →</button>
+      </div>
+    </div>
+
+    <!-- ============ FASA 4 ============ -->
+    <div class="phase-panel" id="phase-3">
+      <div class="phase-hero" data-phase-num="4">
+        <span class="phase-tag">FASA 4 · MINIT 23–28</span>
+        <h1>✅ Semakan Kefahaman</h1>
+        <div class="subtitle">
+          <span>⏱ 5 minit</span>
+          <span>🎯 Soal jawab + Senario praktikal</span>
+          <span>📋 Klik kad untuk reveal jawapan</span>
+        </div>
+      </div>
+
+      <div class="box box-trainer" style="margin-bottom:1.5rem">
+        <span class="box-label">📌 ARAHAN UNTUK TRAINER</span>
+        Gunakan teknik "think-pause-reveal" — bagi peserta 20 saat fikir sendiri sebelum tunjukkan jawapan. Boleh guna Mentimeter, Slido, atau sekadar tanya lisan. Klik kad di bawah untuk reveal jawapan model.
+      </div>
+
+      <div class="qa-grid">
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SOALAN 01</div>
+          <div class="q-text">Apakah beza mod Chat vs mod Cowork dalam Claude?</div>
+          <div class="q-answer">Chat = soalan cepat, satu kali, tiada fail. Cowork = kerja mendalam, melibatkan fail sebenar di komputer, output disimpan ke folder. Cowork perlukan Pro + desktop app.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan</div>
+        </div>
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SOALAN 02</div>
+          <div class="q-text">Kenapa kita perlukan 4 folder? Folder mana yang Claude dibenarkan menulis?</div>
+          <div class="q-answer">4 folder = sistem kerja yang tersusun. Claude HANYA boleh tulis dalam "CLAUDE OUTPUTS". Tiga folder lain (ABOUT ME, PROJECTS, TEMPLATES) adalah read-only — untuk Claude baca sebagai rujukan sahaja.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan</div>
+        </div>
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SOALAN 03</div>
+          <div class="q-text">Apakah fungsi fail anti-ai-style.md? Bagi 1 contoh perkataan yang anda mahu elak.</div>
+          <div class="q-answer">Fail ini adalah senarai larangan — perkataan, frasa, dan gaya penulisan yang Claude mesti ELAK. Contoh: "delve", "leverage", "it's worth noting". Ini pastikan output bunyi seperti anda tulis sendiri, bukan macam AI.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan</div>
+        </div>
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SOALAN 04</div>
+          <div class="q-text">Terangkan teknik "Claude Prompts YOU" dalam satu ayat mudah.</div>
+          <div class="q-answer">Daripada anda menulis arahan panjang, anda suruh Claude tanya soalan berbentuk pilihan kepada anda — anda klik jawapan, Claude buat kerja berdasarkan pilihan anda.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan</div>
+        </div>
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SOALAN 05 ⭐ BONUS</div>
+          <div class="q-text">Connector mana (Slack / Google Docs / Notion) yang paling berguna untuk kerja anda? Kenapa?</div>
+          <div class="q-answer">Jawapan berbeza-beza mengikut peserta. Penilaian: adakah mereka boleh hujahkan dengan contoh konkrit kerja harian? Tiada jawapan salah — yang penting reasoning mereka.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan model</div>
+        </div>
+        <div class="qa-card" onclick="revealAnswer(this)">
+          <div class="q-num">SENARIO PRAKTIKAL</div>
+          <div class="q-text">Anda nak Claude bantu tulis minit mesyuarat. Mod mana anda pilih? File apa perlu disediakan?</div>
+          <div class="q-answer">Mod: Cowork (fail sebenar terlibat). File perlu: (1) about-me.md dengan konteks jawatan, (2) nota mesyuarat dalam folder PROJECTS, (3) template minit dalam folder TEMPLATES. Output ke CLAUDE OUTPUTS.</div>
+          <div class="q-hint">↓ Klik untuk lihat jawapan</div>
+        </div>
+      </div>
+
+      <div class="box box-trainer" style="margin-top:1.5rem">
+        <span class="box-label">📌 PENILAIAN CEPAT</span>
+        Kalau &gt;80% peserta jawab betul soalan 1–4: teruskan. Kalau ramai keliru tentang folder system atau core files: ambil 2 minit untuk recap visual sebelum Fasa 5.
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="switchPhase(2)">← Fasa 3</button>
+        <button class="btn btn-next" onclick="switchPhase(4)">Fasa 5: Wrap Up →</button>
+      </div>
+    </div>
+
+    <!-- ============ FASA 5 ============ -->
+    <div class="phase-panel" id="phase-4">
+      <div class="phase-hero" data-phase-num="5">
+        <span class="phase-tag">FASA 5 · MINIT 28–30</span>
+        <h1>🎯 Wrap Up, Rumusan & Homework</h1>
+        <div class="subtitle">
+          <span>⏱ 2 minit</span>
+          <span>🎯 Formula 3 Perkara + Tugasan</span>
+          <span>📋 Tindakan konkrit hari ini</span>
+        </div>
+      </div>
+
+      <!-- STEP 5.1 -->
+      <div class="step-card open" id="step-5-1">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">5.1</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Formula 3 Perkara — Anchor Memory</div>
+            <div class="step-card-meta">Masa: 1 minit · Teknik: Repetition chant</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Pastikan 3 poin teras melekat dalam ingatan peserta selepas keluar dari bilik.</div>
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Angkat 3 jari dan sebut dengan kuat: <em>"Ingat 3 benda je dari hari ini."</em></li>
+            <li><span class="inst-num">2</span><strong>Jari 1:</strong> "Desktop App — BUKAN website, BUKAN mobile."</li>
+            <li><span class="inst-num">3</span><strong>Jari 2:</strong> "4 Folder = SISTEM anda. Claude hanya tulis dalam CLAUDE OUTPUTS."</li>
+            <li><span class="inst-num">4</span><strong>Jari 3:</strong> "2 Core Files = JIWA Claude anda. about-me.md dan anti-ai-style.md."</li>
+            <li><span class="inst-num">5</span>Tanya peserta: <em>"Boleh ulang balik 3 benda tu?"</em> — minta 1 peserta repeat tanpa tengok nota.</li>
+          </ul>
+          <div class="box box-analogy">
+            <span class="box-label">🧠 ANALOGI PENUTUP</span>
+            "Claude ibarat kereta sport — laju, berkuasa, canggih. Tapi kalau anda tak tahu tukar gear dan tak ada GPS yang betul, anda hanya akan pusing-pusing parking lot. Setup yang betul hari ini = jalan raya terbuka esok."
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5.2 -->
+      <div class="step-card" id="step-5-2">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">5.2</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Homework — 4 Tugasan Malam Ini</div>
+            <div class="step-card-meta">Deadline: Sebelum sesi akan datang · Boleh tandakan siap di bawah</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <div class="obj-strip"><strong>Matlamat:</strong> Peserta selesaikan Langkah 1–4 sendiri dan datang ke sesi akan datang sudah bersedia sepenuhnya.</div>
+          <div class="homework-block">
+            <h3>📋 SENARAI SEMAK HOMEWORK</h3>
+            <div class="hw-item">
+              <div class="hw-check" onclick="toggleCheck(this)"></div>
+              <div><strong>Tugasan 1:</strong> Download dan install Claude desktop app dari <em>claude.com/download</em>. Log masuk dengan akaun Pro anda.</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-check" onclick="toggleCheck(this)"></div>
+              <div><strong>Tugasan 2:</strong> Buat folder <em>Claude-Cowork</em> di desktop anda dengan 4 sub-folder: ABOUT ME, PROJECTS, TEMPLATES, CLAUDE OUTPUTS.</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-check" onclick="toggleCheck(this)"></div>
+              <div><strong>Tugasan 3:</strong> Tulis fail <em>about-me.md</em> dengan nama, jawatan, tanggungjawab, nada penulisan, dan keutamaan semasa anda. Simpan dalam folder ABOUT ME.</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-check" onclick="toggleCheck(this)"></div>
+              <div><strong>Tugasan 4:</strong> Tulis fail <em>anti-ai-style.md</em> dengan sekurang-kurangnya 5 perkataan/frasa yang anda TIDAK mahu Claude gunakan. Simpan dalam folder ABOUT ME.</div>
+            </div>
+            <div class="hw-item">
+              <div class="hw-check" onclick="toggleCheck(this)"></div>
+              <div><strong>BONUS:</strong> Cuba hantar 1 prompt kepada Claude menggunakan about-me.md sebagai konteks. Screenshot output dan kongsi dalam group WhatsApp kelas.</div>
+            </div>
+          </div>
+          <div class="box box-tip" style="margin-top:1rem">
+            <span class="box-label">✅ STARTER KIT UNTUK TRAINER</span>
+            Edarkan template <code>about-me.md</code> siap-isi kepada peserta. Kajian menunjukkan kadar completion homework meningkat 3x apabila peserta ada template berbanding blank page. Boleh kongsikan melalui WhatsApp atau email selepas sesi.
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5.3 -->
+      <div class="step-card" id="step-5-3">
+        <div class="step-card-header" onclick="toggleStep(this)">
+          <div class="step-num-box">5.3</div>
+          <div class="step-card-title-block">
+            <div class="step-card-title">Penutup Sesi — Jemputan & Motivasi</div>
+            <div class="step-card-meta">Masa: 30 saat · Teknik: Commitment statement</div>
+          </div>
+          <span class="step-chevron">▼</span>
+        </div>
+        <div class="step-body">
+          <ul class="instruction-list">
+            <li><span class="inst-num">1</span>Tanya peserta: <em>"Siapa yang akan siapkan SEMUA 4 tugasan malam ini? Angkat tangan."</em></li>
+            <li><span class="inst-num">2</span>Untuk yang angkat tangan: <em>"Bagus. Anda akan datang sesi akan datang dengan sistem yang dah siap — kita akan buat Langkah 5 hingga 10 terus."</em></li>
+            <li><span class="inst-num">3</span>Untuk yang tak angkat tangan: <em>"No pressure — tapi yang buat homework akan dapat 10x lebih banyak dari sesi akan datang. Pilihan ada di tangan anda."</em></li>
+            <li><span class="inst-num">4</span>Ucapkan terima kasih dan tutup sesi.</li>
+          </ul>
+          <div class="phase-complete">
+            <h3>🎉 Sesi 30 Minit Selesai!</h3>
+            <p>Peserta keluar dengan konteks, sistem asas, teknik lanjutan, dan tugasan konkrit. Sesi akan datang: Langkah 5–10, Plugins, Connectors, dan Team Projects.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="switchPhase(3)">← Fasa 4</button>
+        <button class="btn btn-next" disabled>Tamat ✓</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="footer">TUTORIAL INTERAKTIF — MASTERING CLAUDE AI · FASA 1–5 · MODUL 30 MINIT</div>
+
+<script>
+  // ===== PHASE & SIDEBAR DATA =====
+  const phases = [
+    {
+      label: "FASA 1 · HOOK",
+      steps: [
+        { id: "step-1-1", label: "Soalan Pembuka" },
+        { id: "step-1-2", label: "Cerita 5-Line Story" },
+        { id: "step-1-3", label: "Peta Pembelajaran" },
+      ]
+    },
+    {
+      label: "FASA 2 · SETUP",
+      steps: [
+        { id: "step-2-1", label: "L1: Download Desktop App" },
+        { id: "step-2-2", label: "L2: 4 Mod Claude" },
+        { id: "step-2-3", label: "L3: Sistem 4-Folder" },
+        { id: "step-2-4", label: "L4: 2 Core Files" },
+      ]
+    },
+    {
+      label: "FASA 3 · DEEP DIVE",
+      steps: [
+        { id: "step-3-1", label: "L5: Text Shortcut" },
+        { id: "step-3-2", label: "L6: AskUserQuest" },
+        { id: "step-3-3", label: "L7-8: Plugins & Connectors" },
+      ]
+    },
+    {
+      label: "FASA 4 · CHECK",
+      steps: [
+        { id: null, label: "Soalan 1–4" },
+        { id: null, label: "Soalan Bonus" },
+        { id: null, label: "Senario Praktikal" },
+      ]
+    },
+    {
+      label: "FASA 5 · WRAP UP",
+      steps: [
+        { id: "step-5-1", label: "Formula 3 Perkara" },
+        { id: "step-5-2", label: "Senarai Semak Homework" },
+        { id: "step-5-3", label: "Penutup Sesi" },
+      ]
+    }
+  ];
+
+  let currentPhase = 0;
+  let doneSteps = new Set();
+
+  // ===== BUILD SIDEBAR =====
+  function buildSidebar() {
+    const sb = document.getElementById('sidebar');
+    sb.innerHTML = '';
+    phases.forEach((phase, pi) => {
+      const header = document.createElement('div');
+      header.className = 'sidebar-phase-header';
+      header.textContent = phase.label;
+      sb.appendChild(header);
+      phase.steps.forEach((step, si) => {
+        const el = document.createElement('div');
+        el.className = 'sidebar-step' +
+          (pi === currentPhase ? ' active' : '') +
+          (doneSteps.has(`${pi}-${si}`) ? ' done' : '');
+        el.id = `sb-${pi}-${si}`;
+        el.onclick = () => {
+          switchPhase(pi);
+          if (step.id) setTimeout(() => {
+            const card = document.getElementById(step.id);
+            if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          }, 200);
+        };
+        const dot = document.createElement('div');
+        dot.className = 'step-dot';
+        dot.textContent = doneSteps.has(`${pi}-${si}`) ? '✓' : `${pi+1}.${si+1}`;
+        const label = document.createElement('div');
+        label.className = 'step-label';
+        label.textContent = step.label;
+        el.appendChild(dot);
+        el.appendChild(label);
+        sb.appendChild(el);
+      });
+    });
+  }
+
+  // ===== SWITCH PHASE =====
+  function switchPhase(idx) {
+    // Mark old phase steps done
+    phases[currentPhase].steps.forEach((_, si) => doneSteps.add(`${currentPhase}-${si}`));
+
+    currentPhase = idx;
+    document.querySelectorAll('.phase-panel').forEach((p, i) => {
+      p.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.phase-tab').forEach((t, i) => {
+      t.classList.toggle('active', i === idx);
+    });
+
+    // Update progress
+    const total = phases.reduce((s, p) => s + p.steps.length, 0);
+    const done = doneSteps.size;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+
+    buildSidebar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ===== TOGGLE STEP CARDS =====
+  function toggleStep(header) {
+    const card = header.closest('.step-card');
+    card.classList.toggle('open');
+  }
+
+  // ===== REVEAL ANSWER =====
+  function revealAnswer(card) {
+    card.classList.toggle('revealed');
+    const hint = card.querySelector('.q-hint');
+    if (card.classList.contains('revealed')) {
+      hint.textContent = '↑ Klik untuk sembunyikan';
+    } else {
+      hint.textContent = '↓ Klik untuk lihat jawapan';
+    }
+  }
+
+  // ===== TOGGLE HW CHECKBOX =====
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const checked = document.querySelectorAll('.hw-check.checked').length;
+    const total = document.querySelectorAll('.hw-check').length;
+    if (total === 0) return;
+    // bonus progress
+  }
+
+  // ===== TIMER =====
+  let seconds = 0;
+  setInterval(() => {
+    seconds++;
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    document.getElementById('timerDisplay').textContent = `⏱ ${m}:${s}`;
+  }, 1000);
+
+  // ===== INIT =====
+  buildSidebar();
+</script>
+</body>
+</html>
